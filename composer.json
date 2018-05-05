@@ -1,0 +1,20 @@
+{
+    "name": "expenect/db",
+    "description": "Class for DB",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Dima Myslyvyi",
+            "email": "dima.myslyvyi@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "Expenect": "src/"
+        }
+    }
+}
