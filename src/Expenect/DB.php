@@ -17,24 +17,8 @@ use Exception;
  */
 class DB
 {
-    /** @var DB */
-    private static $instance;
     /** @var \mysqli mysqli */
     private $mysqli;
-
-    /**
-     * @return DB
-     */
-    public static function getInstance(): DB
-    {
-        if (!self::$instance) {
-            try {
-                self::$instance = new self('127.0.0.1', 'root', '1', 'parser_bim');
-            } catch (Exception $e) {}
-        }
-
-        return self::$instance;
-    }
 
     /**
      * DB constructor.
@@ -46,7 +30,7 @@ class DB
      *
      * @throws Exception
      */
-    private function __construct($host, $username, $password, $dbName)
+    public function __construct($host, $username, $password, $dbName)
     {
         // Create new connect to DB
         $this->mysqli = new \mysqli(
