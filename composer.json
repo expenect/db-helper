@@ -13,8 +13,8 @@
         "php": ">=7.0"
     },
     "autoload": {
-        "psr-0": {
-            "Expenect": "src/"
+        "psr-4": {
+            "Expenect//": "src/"
         }
     }
 }
