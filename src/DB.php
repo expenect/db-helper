@@ -63,9 +63,9 @@ class DB
      *
      * @param $sql
      *
-     * @return bool
+     * @return bool|array
      */
-    public function getRow($sql): bool
+    public function getRow($sql)
     {
         $query = $this->query($sql);
         $row   = $query->fetch_row();
