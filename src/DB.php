@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: myslyvyi
@@ -68,7 +68,7 @@ class DB
     public function getRow($sql)
     {
         $query = $this->query($sql);
-        $row   = $query->fetch_row();
+        $row = $query->fetch_row();
 
         return $row ? $row[0] : false;
     }
@@ -113,53 +113,72 @@ class DB
      */
     public function pSql($value)
     {
-        $search  = ["\\", "\0", "\n", "\r", "\x1a", "'", '"'];
+        $search = ["\\", "\0", "\n", "\r", "\x1a", "'", '"'];
         $replace = ["\\\\", "\\0", "\\n", "\\r", "\Z", "\'", '\"'];
 
         return str_replace($search, $replace, $value);
     }
 
-    //    /**
-    //     * Обновим значения глобальным запросом
-    //     *
-    //     * @param string $tableName Название таблички в БД
-    //     * @param array $updateValues Нашы данные
-    //     * @param string $updateField
-    //     * @param string $keyField
-    //     *
-    //     * @throws Exception
-    //     */
-    //    public function bulkUpdate($tableName, $updateValues, $updateField, $keyField)
-    //    {
-    //        /** @var array $updateValues */
-    //        if (count($updateValues) > 0) {
-    //            $updateSql = '';
-    //            $whereKeys = [];
-    //
-    //            /**
-    //             * Переберем массив со значениями и соберем тело запроса
-    //             */
-    //            foreach ($updateValues as $key => $item) {
-    //                $item = $this->pSql($item);
-    //                $key  = $this->pSql($key);
-    //
-    //                $updateSql   .= ' WHEN \'' . $key . '\' THEN \'' . $item . '\'';
-    //                $whereKeys[] = $key;
-    //            }
-    //
-    //            $sql = 'UPDATE ' . $tableName
-    //                   . ' SET ' . $updateField . ' = (CASE ' . $keyField
-    //                   . $updateSql
-    //                   . ' END)'
-    //                   . ' WHERE ' . $keyField . ' IN (\'' . implode('\', \'', $whereKeys) . '\')';
-    //
-    //            $this->mysqli->query($sql);
-    //
-    //            if ($this->mysqli->errno) {
-    //                throw new Exception($this->mysqli->error);
-    //            }
-    //        }
-    //    }
+    /**
+     * Обновим значения глобальным запросом
+     *
+     * @param $tableName
+     * @param array $data
+     * @param array $keys
+     *
+     * @return string
+     */
+    public function sqlBulkUpdate ($tableName, array $data, array $keys): string
+    {
+        $fields = [];
+        $cases = [];
+        $where = [];
+
+        foreach ($data as $i => $row) {
+            $cases[$i] = '';
+            $row = array_map([$this, 'pSql'], $row);
+
+            foreach ($row as $fld => $val) {
+                if (in_array($fld, $keys)) {
+                    $cases[$i] .= "{$fld} = '{$val}' AND ";
+
+                    $where[$fld][] = $val;
+                } else {
+                    $fields[$fld][$i] = $val;
+                }
+            }
+
+            $cases[$i] = rtrim($cases[$i], 'AND ');
+        }
+
+        // --
+        $sql = 'UPDATE ' . $tableName . ' SET ';
+
+        foreach ($fields as $fld => $vals) {
+            $sql .= $fld . ' = CASE';
+
+            foreach ($vals as $i => $val) {
+                $sval = is_null($val) ? 'NULL' : '\'' . $val . '\'';
+                $sql .= ' WHEN ' . $cases[$i] . ' THEN ' . $sval;
+            }
+
+            $sql .= ' END, ';
+        }
+
+        $sql = rtrim($sql, ', ');
+        $sql .= ' WHERE ';
+
+        foreach ($where as $fld => $vals) {
+            $sql .= $fld . ' IN (\'' . implode('\',\'', array_unique($vals)) . '\') AND ';
+        }
+
+        return rtrim($sql, ' AND ');
+    }
+
+    public function _escape($string)
+    {
+        return mysqli_real_escape_string($this->mysqli, $string);
+    }
 
     /**
      * Сформирируем массовый insert и добавим в файл
@@ -191,7 +210,7 @@ class DB
     {
         $sql = $this->sqlBulkInsert($tableName, $data);
 
-        return file_put_contents('sql/' . ($fileName ?? $tableName) . '.sql', $sql,0);
+        return file_put_contents('sql/' . ($fileName ?? $tableName) . '.sql', $sql, 0);
     }
 
     /**
@@ -205,6 +224,7 @@ class DB
     public function sqlBulkInsertExec($tableName, $data)
     {
         $sql = $this->sqlBulkInsert($tableName, $data);
+
         return $this->mysqli->query($sql);
     }
 
