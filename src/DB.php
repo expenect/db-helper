@@ -172,7 +172,7 @@ class DB
             $sql .= $fld . ' IN (\'' . implode('\',\'', array_unique($vals)) . '\') AND ';
         }
 
-        return rtrim($sql, ' AND ');
+        return rtrim($sql, ' AND ').';';
     }
 
     public function _escape($string)
