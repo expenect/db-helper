@@ -128,7 +128,7 @@ class DB
      *
      * @return string
      */
-    public function sqlBulkUpdate ($tableName, array $data, array $keys): string
+    public function sqlBulkUpdate ($tableName, $data, $keys)
     {
         $fields = [];
         $cases = [];
