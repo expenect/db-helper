@@ -210,7 +210,7 @@ class DB
     {
         $sql = $this->sqlBulkInsert($tableName, $data);
 
-        return file_put_contents('sql/' . ($fileName ?? $tableName) . '.sql', $sql, 0);
+        return file_put_contents('sql/' . ($fileName ? $fileName : $tableName) . '.sql', $sql, 0);
     }
 
     /**
