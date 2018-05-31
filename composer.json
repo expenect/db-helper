@@ -2,13 +2,14 @@
     "name": "expenect/db",
     "description": "Class for DB",
     "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Dima Myslyvyi",
             "email": "dima.myslyvyi@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "0.1.1",
     "require": {
         "php": ">=5.4"
     },
