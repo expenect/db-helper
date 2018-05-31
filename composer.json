@@ -1,5 +1,5 @@
 {
-    "name": "expenect/db",
+    "name": "expenect/db-helper",
     "description": "Class for DB",
     "type": "library",
     "license": "MIT",
@@ -9,7 +9,6 @@
             "email": "dima.myslyvyi@gmail.com"
         }
     ],
-    "minimum-stability": "alpha",
     "require": {
         "php": ">=5.4"
     },
