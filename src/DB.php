@@ -20,6 +20,11 @@ class DB
     /** @var \mysqli mysqli */
     private $mysqli;
 
+    private $host;
+    private $username;
+    private $password;
+    private $dbName;
+
     /**
      * DB constructor.
      *
@@ -32,12 +37,24 @@ class DB
      */
     public function __construct($host, $username, $password, $dbName)
     {
-        // Create new connect to DB
+        $this->host = $host;
+        $this->username = $username;
+        $this->password = $password;
+        $this->dbName = $dbName;
+
+        $this->connect();
+    }
+
+    /**
+     * Connect to DB
+     */
+    public function connect()
+    {
         $this->mysqli = new \mysqli(
-            $host,
-            $username,
-            $password,
-            $dbName
+            $this->host,
+            $this->username,
+            $this->password,
+            $this->dbName
         );
 
         if ( ! mysqli_set_charset($this->mysqli, 'utf8')) {
@@ -46,15 +63,26 @@ class DB
         }
     }
 
+    public function close()
+    {
+        $this->mysqli->close();
+    }
+
     /**
      * Mysqli query
      *
      * @param $sql
      *
      * @return bool|\mysqli_result
+     * @throws \ErrorException
      */
     public function query($sql)
     {
+        if (!$this->mysqli->ping()) {
+            $this->close();
+            $this->connect();
+        }
+
         return $this->mysqli->query($sql);
     }
 
