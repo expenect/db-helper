@@ -56,7 +56,7 @@ class DB
             $this->password,
             $this->dbName
         );
-
+    
         if ( ! mysqli_set_charset($this->mysqli, 'utf8')) {
             throw new \ErrorException(sprintf("Ошибка при загрузке набора символов utf8: %s\n",
                 mysqli_error($this->mysqli)));
@@ -190,7 +190,7 @@ class DB
                 $sql .= ' WHEN ' . $cases[$i] . ' THEN ' . $sval;
             }
 
-            $sql .= ' END, ';
+            $sql .= 'ELSE '.$fld.' END, ';
         }
 
         $sql = rtrim($sql, ', ');
