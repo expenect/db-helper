@@ -1,12 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: myslyvyi
- * Email: dima.myslyvyi@gmail.com
- * Date: 20.03.2018
- * Time: 15:15
- */
-
 namespace Expenect;
 
 use Exception;
@@ -190,7 +182,7 @@ class DB
                 $sql .= ' WHEN ' . $cases[$i] . ' THEN ' . $sval;
             }
 
-            $sql .= 'ELSE '.$fld.' END, ';
+            $sql .= ' ELSE '.$fld.' END, ';
         }
 
         $sql = rtrim($sql, ', ');
