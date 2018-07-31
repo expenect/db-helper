@@ -1,4 +1,12 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: myslyvyi
+ * Email: dima.myslyvyi@gmail.com
+ * Date: 20.03.2018
+ * Time: 15:15
+ */
+
 namespace Expenect;
 
 use Exception;
@@ -206,13 +214,14 @@ class DB
      * @param $tableName
      * @param $data
      * @param $fileName
+     * @param bool $isIgnore If need to add ignore attribute for INSERT
      *
      * @return bool|int
      */
-    public function sqlBulkInsertAppendFile($tableName, $data, $fileName = null)
+    public function sqlBulkInsertAppendFile($tableName, $data, $fileName = null, $isIgnore = true)
     {
 
-        $sql = $this->sqlBulkInsert($tableName, $data);
+        $sql = $this->sqlBulkInsert($tableName, $data, $isIgnore);
 
         return file_put_contents('sql/' . $fileName . '.sql', $sql, FILE_APPEND);
     }
@@ -253,21 +262,22 @@ class DB
      *
      * @param $tableName
      * @param $data array в качестве ключа должны виступать поля в БД
+     * @param bool $isIgnore If need to add ignore attribute for INSERT
      *
      * @return bool|string
      */
-    public function sqlBulkInsert($tableName, $data)
+    public function sqlBulkInsert($tableName, $data, $isIgnore = false)
     {
         if (\count($data) === 0 || \count($data[0]) === 0) {
             return false;
         }
-
+    
         // Получим наши ключи
         $keys = array_keys($data[0]);
         // Наш основной запрос
         $sql = /** @lang text */
-            'INSERT INTO ' . $tableName . ' (`' . implode('`,`', $keys) . '`) VALUES ';
-
+            'INSERT'.($isIgnore ? ' IGNORE' : '').' INTO '.$tableName.' (`'.implode('`,`', $keys).'`) VALUES ';
+    
         /** @var array $item */
         foreach ($data as $item) {
             // pSql
@@ -275,18 +285,17 @@ class DB
                 if ($it === null) {
                     $item[$key] = 'NULL';
                 } elseif (\is_string($it)) {
-                    $item[$key] = '\'' . $this->pSql($it) . '\'';
+                    $item[$key] = '\''.$this->pSql($it).'\'';
                 } else {
                     /** @var array $it */
                     $item[$key] = $it;
                 }
             }
-
-            $sql .= '(' . implode(',', $item) . '),';
+        
+            $sql .= '('.implode(',', $item).'),';
         }
-        $sql = substr($sql, 0, -1) . ';' . PHP_EOL;
-
-
+        $sql = substr($sql, 0, -1).';'.PHP_EOL;
+    
         return $sql;
     }
 }
